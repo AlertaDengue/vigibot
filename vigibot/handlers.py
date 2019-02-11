@@ -26,6 +26,7 @@ def get_user_command_and_name(update):
 
 @run_async
 def bom_dia(bot, update):
+    # module_logger.info("entrou em bom_dia")
     usr_chat_id = update.message.chat_id
     if update:
         usr_command, usr_name = get_user_command_and_name(update)
@@ -33,6 +34,6 @@ def bom_dia(bot, update):
         module_logger.info(
             "Has received a command \"{}\" from user {}, with id {}".format(usr_command, usr_name, usr_chat_id))
 
-    emoj = emojize(':)', use_aliases=True)
+    emoj = emojize(':smiley:', use_aliases=True)
     bot.send_message(usr_chat_id, "Bom dia! "+emoj, parse_mode="Markdown")
     module_logger.info("Said 'Bom dia!' to %s", usr_chat_id)

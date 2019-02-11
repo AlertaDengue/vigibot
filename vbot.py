@@ -9,6 +9,8 @@ import dotenv
 
 # Load environment variables from .env
 dotenv.load()
+BOT_TOKEN = dotenv.get('BOT_TOKEN')
+
 
 
 # Setup logging
@@ -16,6 +18,7 @@ module_logger = logging.getLogger(__name__)
 module_logger.addHandler(loghandler)
 module_logger.setLevel(logging.INFO)
 # end of log section
+
 
 def main():
     module_logger.info("Tradebot starting...")
@@ -26,10 +29,10 @@ def main():
     dispatcher.add_error_handler(error)
 
     # bot's command handlers
-    ola_handler = CommandHandler('ola', bom_dia, pass_args=True)
+    ola_handler = CommandHandler('ola', bom_dia)
     dispatcher.add_handler(ola_handler)
-    ola_handler2 = CommandHandler('olá', bom_dia, pass_args=True)
-    dispatcher.add_handler(ola_handler)
+    ola_handler2 = CommandHandler('olá', bom_dia)
+    dispatcher.add_handler(ola_handler2)
 
     updater.start_polling()
     updater.idle()
