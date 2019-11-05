@@ -9,7 +9,8 @@ verify_ssl = true
 emoji = "*"
 pandas = "*"
 python-telegram-bot = "*"
-python-env = "*"
+sqlalchemy = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.6"
