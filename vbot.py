@@ -5,7 +5,7 @@ from vigibot import logformatter, loghandler
 import logging
 import os
 
-from vigibot.handlers import bom_dia, error, alerta, unknown
+from vigibot.handlers import bom_dia, error, alerta, unknown, location
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -40,6 +40,9 @@ def main():
 
     unknown_handler = MessageHandler(Filters.command, unknown)
     dispatcher.add_handler(unknown_handler)
+
+    location_handler = MessageHandler(Filters.location, location, pass_user_data=True)
+    dispatcher.add_handler(location_handler)
 
     updater.start_polling()
     updater.idle()
