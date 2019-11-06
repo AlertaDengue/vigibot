@@ -1,0 +1,5 @@
+emoji
+geopy
+python-telegram-bot
+sqlalchemy
+python-dotenv

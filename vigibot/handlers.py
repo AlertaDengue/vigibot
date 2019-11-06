@@ -5,6 +5,8 @@ from sqlalchemy import create_engine, text
 from telegram.ext.dispatcher import run_async
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from emoji import emojize, UNICODE_EMOJI_ALIAS
+from geopy.geocoders import Nominatim
+from functools import lru_cache
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -126,16 +128,18 @@ def check_user_exists(tid):
 
 def add_user(user):
     with botdb_engine.connect() as conexao:
-        conexao.execute(f'insert into bot_users(telegram_uid, first_name, last_name) values({user.id}, \'{user.first_name}\',\'{user.last_name}\');')
+        conexao.execute(
+            f'insert into bot_users(telegram_uid, first_name, last_name) values({user.id}, \'{user.first_name}\',\'{user.last_name}\');')
 
 
 def add_location(user, location):
     with botdb_engine.connect() as conexao:
-        sql = f"""update bot_users 
-        set latitude={location.latitude},
-        longitude={location.longitude}
-        where 
-        telegram_uid={user.id};
-        """
-        conexao.execute(sql)
+        sql = text("update bot_users set latitude= :lat, longitude= :long where telegram_uid= :id;")
+        conexao.execute(sql, **{'lat': location.latitude, 'long': location.longitude, 'id': user.id})
 
+
+@lru_cache(maxsize=1000)
+def get_location_from_coords(lat, lon):
+    geolocator = Nominatim(user_agent="E-vigilancia")
+    location = geolocator.reverse(f"{lat}, {lon}")
+    return location

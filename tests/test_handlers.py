@@ -17,7 +17,7 @@ class MyTestCase(unittest.TestCase):
     def test_check_for_new_user_returns_false(self):
         res = check_user_exists(90290)
         self.assertFalse(res)
-    def test_add_user(self):
+    def test_add_a_user(self):
         add_user(U())
         res = check_user_exists(1)
         self.assertTrue(res)
