@@ -3,6 +3,7 @@ from vigibot.data import get_geocode, get_alerta
 import logging, os
 from sqlalchemy import create_engine, text
 from telegram.ext.dispatcher import run_async
+from telegram import ParseMode
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from emoji import emojize, UNICODE_EMOJI_ALIAS
 from geopy.geocoders import Nominatim
@@ -73,9 +74,6 @@ def bom_dia(update, context):
 @run_async
 def alerta(update, context):
     usr_chat_id = update.message.chat_id
-
-    # if update:
-    #     usr_command, usr_name = get_user_command_and_name(update)
     doenca = context.args[0]
     cidade = ' '.join(context.args[1:])
     # print(doenca, cidade)
@@ -92,21 +90,25 @@ def alerta(update, context):
         update.message.reply_text(emojize(uni_emoji['thinking']) + " Nao temos esta informaçao no momento.")
         return
     # print(alrt)
-    niveis = {1: "verde " + emojize(uni_emoji['green_circle']),
-              2: "amarelo " + emojize(uni_emoji['yellow_circle']),
-              3: "laranja " + emojize(uni_emoji['orange_circle']),
-              4: "vermelho " + emojize(uni_emoji['red_circle']),
+    niveis = {1: "verde ",
+              2: "amarelo ",
+              3: "laranja ",
+              4: "vermelho ",
               }
-    # update.message.reply_text("teste")
+
     update.message.reply_text(
-        "Estamos no nivel " + niveis[alrt[0]] + ", para a " + doenca + ", na semana " + str(alrt[1])[-2:],
+        "Estamos no nivel " + niveis[alrt[0]] + ", para a " + doenca + ", na semana " + str(alrt[1])[-2:]+" em "+cidade+".",
         parse_mode="Markdown")
+    update.message.reply_text(
+        f'Para maiores detalhes, consulte o <a href="https://info.dengue.mat.br/alerta/{gc}/dengue">Infodengue</a>.',
+        parse_mode=ParseMode.HTML)
+
     module_logger.info("Enviou alerta para %s", usr_chat_id)
 
 
 def unknown(update, context):
     emoj = emojize(':smiley:', use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Desculpa, Nao conheço este comando. " + emoj,
+    update.message.reply_text("Desculpa, Nao conheço este comando. " + emoj,
                              parse_mode="Markdown")
 
 
