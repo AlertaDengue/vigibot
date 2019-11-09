@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from telegram.ext import Updater, Filters
-from telegram.ext import CommandHandler, MessageHandler
+from telegram.ext import CommandHandler, MessageHandler, ConversationHandler
 from vigibot import logformatter, loghandler
 import logging
 import os
@@ -12,12 +12,12 @@ load_dotenv()
 # Load environment variables from .env
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 
-
-
 # Setup logging
 module_logger = logging.getLogger(__name__)
 module_logger.addHandler(loghandler)
 module_logger.setLevel(logging.INFO)
+
+
 # end of log section
 
 
@@ -46,8 +46,6 @@ def main():
 
     updater.start_polling()
     updater.idle()
-
-
 
 
 if __name__ == '__main__':

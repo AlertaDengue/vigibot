@@ -103,6 +103,8 @@ def get_geocode(muname):
             )
             gc = res.fetchall()
             l -= 1
+            if l<3:
+                return gc
 
         gc = gc[0][0]
         return gc

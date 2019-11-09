@@ -62,9 +62,11 @@ def bom_dia(update, context):
     module_logger.info("Said 'Bom dia!' to %s", usr_chat_id)
     if not check_user_exists(user.id):
         reply_markup = ReplyKeyboardMarkup([[location_keyboard]])
+        update.message.reply_text("Eu sou o Vigibot, minha missão é manter você informadx sobre as arboviroses!")
         update.message.reply_text(
-            "Voce pode compartilhar sua localizaçao comigo? \nAssim posso te enviar informaçoes sobre o seu local!",
+            "Voce se importa de compartilhar sua localizaçao comigo? \nAssim posso te enviar informaçoes sobre o seu local!",
             reply_markup=reply_markup)
+
         add_user(user)
 
 
@@ -81,8 +83,8 @@ def alerta(update, context):
     gc = get_geocode(cidade)
     # print(gc)
     if not isinstance(gc, int):
-        update.message.reply_text(emojize(uni_emoji['thinking']) + " Nao conheço a cidade %s. Voce digitou os acentos?",
-                                  cidade)
+        update.message.reply_text(
+            emojize(uni_emoji['thinking']) + " Nao conheço a cidade \"" + cidade + "\". Voce digitou os acentos?")
         module_logger.debug("falhou!")
         return
     alrt = get_alerta(gc, doenca)
