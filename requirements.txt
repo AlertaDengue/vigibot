@@ -3,3 +3,5 @@ geopy
 python-telegram-bot
 sqlalchemy
 python-dotenv
+pandas
+psycopg2
