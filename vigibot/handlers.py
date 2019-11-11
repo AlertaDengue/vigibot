@@ -25,7 +25,7 @@ uni_emoji = {
 
 location_keyboard = KeyboardButton(text="send_location", request_location=True)
 disease_keyboard = [[KeyboardButton('/alerta '+d+' Rio de Janeiro')] for d in ['dengue','chikungunya','zika']]
-disease_keyboard_markup = ReplyKeyboardMarkup(disease_keyboard)
+disease_keyboard_markup = ReplyKeyboardMarkup(disease_keyboard, one_time_keyboard=True)
 
 botdb_engine = create_engine("postgresql://{}:{}@{}/{}".format(
     os.getenv('PSQL_USER'),
@@ -87,6 +87,8 @@ def alerta(update, context):
         update.message.reply_text("Escolha uma destas doenças:", reply_markup=disease_keyboard_markup)
         return
     cidade = ' '.join(context.args[1:])
+    if cidade == 'chikungunya':
+        cidade = 'chik'
     # print(doenca, cidade)
     module_logger.info("%s fez uma consulta de alerta sobre %s em %s", usr_chat_id, doenca, cidade)
     gc = get_geocode(cidade)
