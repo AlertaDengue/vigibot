@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 from telegram.ext import Updater, Filters
-from telegram.ext import CommandHandler, MessageHandler, ConversationHandler
+from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, InlineQueryHandler
 from vigibot import logformatter, loghandler
 import logging
 import os
 
-from vigibot.handlers import bom_dia, error, alerta, unknown, location
+from vigibot.handlers import bom_dia, error, alerta, unknown, location, inlinequery
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -43,6 +43,8 @@ def main():
 
     location_handler = MessageHandler(Filters.location, location, pass_user_data=True)
     dispatcher.add_handler(location_handler)
+
+    dispatcher.add_handler(InlineQueryHandler(inlinequery))
 
     updater.start_polling()
     updater.idle()

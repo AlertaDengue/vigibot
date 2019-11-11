@@ -70,10 +70,15 @@ def bom_dia(update, context):
 
         add_user(user)
 
+@run_async
+def inlinequery(update, context):
+    query = update.inline_query.query
 
 @run_async
 def alerta(update, context):
     usr_chat_id = update.message.chat_id
+    if context.args == []:
+        update.message.reply_text("Por favor especifique uma doença e uma cidade.\nPor exemplo: /alerta dengue niteroi")
     doenca = context.args[0]
     cidade = ' '.join(context.args[1:])
     # print(doenca, cidade)
