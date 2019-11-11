@@ -87,8 +87,8 @@ def alerta(update, context):
         update.message.reply_text("Escolha uma destas doenças:", reply_markup=disease_keyboard_markup)
         return
     cidade = ' '.join(context.args[1:])
-    if cidade == 'chikungunya':
-        cidade = 'chik'
+    if doenca == 'chikungunya':
+        doenca = 'chik'
     # print(doenca, cidade)
     module_logger.info("%s fez uma consulta de alerta sobre %s em %s", usr_chat_id, doenca, cidade)
     gc = get_geocode(cidade)

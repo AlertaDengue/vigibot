@@ -13,7 +13,7 @@ class L:
     latitude = 23.0
     longitude = -46.2
 
-class MyTestCase(unittest.TestCase):
+class HandlersTestCase(unittest.TestCase):
     def test_check_for_new_user_returns_false(self):
         res = check_user_exists(90290)
         self.assertFalse(res)
@@ -26,6 +26,7 @@ class MyTestCase(unittest.TestCase):
         user = U()
         location = L()
         add_location(user, location)
+
         
 
 
