@@ -64,13 +64,15 @@ def bom_dia(update, context):
     update.message.reply_text("Bom dia! " + user.first_name + emoj, parse_mode="Markdown")
     module_logger.info("Said 'Bom dia!' to %s", usr_chat_id)
     if not check_user_exists(user.id):
+        add_user(user)
+        update.message.reply_text("Prazer em te conhecer! "+ emoj)
         reply_markup = ReplyKeyboardMarkup([[location_keyboard]])
         update.message.reply_text("Eu sou o Vigibot, minha missão é manter você informadx sobre as arboviroses!")
         update.message.reply_text(
             "Voce se importa de compartilhar sua localizaçao comigo? \nAssim posso te enviar informaçoes sobre o seu local!",
             reply_markup=reply_markup)
 
-        add_user(user)
+
 
 @run_async
 def inlinequery(update, context):
