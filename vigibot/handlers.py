@@ -82,7 +82,7 @@ def alerta(update, context):
     if context.args == []:
         update.message.reply_text("Por favor especifique uma doença e uma cidade.\nPor exemplo: /alerta dengue niteroi")
         return
-    doenca = context.args[0]
+    doenca = context.args[0].lower()
     if doenca not in ['dengue', 'chik', 'chikungunya', 'zika']:
         update.message.reply_text("Escolha uma destas doenças:", reply_markup=disease_keyboard_markup)
         return
