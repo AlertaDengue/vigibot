@@ -123,7 +123,7 @@ def alerta(update, context):
     word = random.choice(['turma', 'Turma', 'galera', 'Galera', 'amigx', 'Amigx', 'amigxs', 'Amigxs','gente','Gente'])
     try:
         tweetapi.update_status(
-            f"Oi{word}, estamos no nivel {niveis[alrt[0]]}, para a {doenca} em {cidade}.\nPara maiores detalhes, consulte o https://info.dengue.mat.br/alerta/{gc}/dengue")
+            f"Oi {word}, estamos no nivel {niveis[alrt[0]]}, para a {doenca} em {cidade}.\nPara maiores detalhes, consulte o https://info.dengue.mat.br/alerta/{gc}/dengue")
     except:
         module_logger.debug("failed sending tweet.")
     module_logger.info("Enviou alerta para %s", usr_chat_id)
