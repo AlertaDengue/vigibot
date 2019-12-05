@@ -17,6 +17,10 @@ class MyTestCase(unittest.TestCase):
         gc = get_geocode('Sao Luis do Curu')
         self.assertEqual(2312601, gc)
 
+    def test_find_geocode_cidade_desconhecida(self):
+        gc = get_geocode('sldfk skdjf')
+        self.assertEqual([], gc)
+
     def test_find_geocode(self):
         gc = get_geocode('rio de janeiro')
         self.assertEqual(gc, 3304557)

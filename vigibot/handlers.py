@@ -1,6 +1,6 @@
 from vigibot import loghandler, logformatter
 from vigibot.data import get_geocode, get_alerta
-import logging, os
+import logging, os, random
 from sqlalchemy import create_engine, text
 from telegram.ext.dispatcher import run_async
 from telegram import ParseMode
@@ -8,6 +8,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup
 from emoji import emojize, UNICODE_EMOJI_ALIAS
 from geopy.geocoders import Nominatim
 from functools import lru_cache
+from vigibot.twitter_client import api as tweetapi
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ def bom_dia(update, context):
 
     emoj = emojize(':smiley:', use_aliases=True)
     update.message.reply_text("Bom dia! " + user.first_name + emoj, parse_mode="Markdown")
+    update.message.reply_text('Siga-me no <a href="https://twitter.com/evigilancia2">Twitter!</a>', parse_mode=ParseMode.HTML)
     module_logger.info("Said 'Bom dia!' to %s", usr_chat_id)
     if not check_user_exists(user.id):
         add_user(user)
@@ -117,7 +119,12 @@ def alerta(update, context):
     update.message.reply_text(
         f'Para maiores detalhes, consulte o <a href="https://info.dengue.mat.br/alerta/{gc}/dengue">Infodengue</a>.',
         parse_mode=ParseMode.HTML)
-
+    word = random.choice(['turma', 'Turma', 'galera', 'Galera', 'amigx', 'Amigx', 'amigxs', 'Amigxs','gente','Gente'])
+    try:
+        tweetapi.update_status(
+            f"Oi{word}, estamos no nivel {niveis[alrt[0]]}, para a {doenca} em {cidade}.\nPara maiores detalhes, consulte o https://info.dengue.mat.br/alerta/{gc}/dengue")
+    except:
+        module_logger.debug("failed sending tweet.")
     module_logger.info("Enviou alerta para %s", usr_chat_id)
 
 
