@@ -9,6 +9,7 @@ from emoji import emojize, UNICODE_EMOJI_ALIAS
 from geopy.geocoders import Nominatim
 from functools import lru_cache
 from vigibot.twitter_client import api as tweetapi
+from vigibot.twitter_client import follow_all
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ def bom_dia(update, context):
         update.message.reply_text(
             "Voce se importa de compartilhar sua localizaçao comigo? \nAssim posso te enviar informaçoes sobre o seu local!",
             reply_markup=reply_markup)
-
+    follow_all()
 
 
 @run_async
