@@ -30,21 +30,21 @@ def main():
     dispatcher.add_error_handler(error)
 
     # bot's command handlers
-    ola_handler = CommandHandler('ola', bom_dia)
+    ola_handler = CommandHandler('ola', bom_dia, run_async=True)
     dispatcher.add_handler(ola_handler)
     # ola_handler2 = CommandHandler('olá', bom_dia)
     # dispatcher.add_handler(ola_handler2)
 
-    alerta_handler = CommandHandler('alerta', alerta, pass_args=True, pass_user_data=True)
+    alerta_handler = CommandHandler('alerta', alerta, pass_args=True, pass_user_data=True, run_async=True)
     dispatcher.add_handler(alerta_handler)
 
-    unknown_handler = MessageHandler(Filters.command, unknown)
+    unknown_handler = MessageHandler(Filters.command, unknown, run_async=True)
     dispatcher.add_handler(unknown_handler)
 
-    location_handler = MessageHandler(Filters.location, location, pass_user_data=True)
+    location_handler = MessageHandler(Filters.location, location, pass_user_data=True, run_async=True)
     dispatcher.add_handler(location_handler)
 
-    dispatcher.add_handler(InlineQueryHandler(inlinequery))
+    dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
 
     updater.start_polling()
     updater.idle()

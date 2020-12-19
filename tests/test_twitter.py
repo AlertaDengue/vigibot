@@ -10,7 +10,7 @@ class TwitterTestCase(unittest.TestCase):
         api.update_status(msg)
         public_tweets = api.home_timeline()
         tweets = [tw.text for tw in public_tweets]
-        # self.assertIn(msg, tweets)
+        self.assertIn(msg, tweets)
 
 
 if __name__ == '__main__':

@@ -11,3 +11,5 @@ Before starting to use chatterbot we need to setup spacy, the nlp engine it uses
 sudo python -m spacy download en
 sudo python -m spacy download pt
 ```
+
+Then open this [notebook](Testing.ipynb) to train and test the chat engine with the latest version of the corpus.

@@ -10,4 +10,5 @@ instabot
 PyYAML
 spacy
 chatterbot
+uuid
 

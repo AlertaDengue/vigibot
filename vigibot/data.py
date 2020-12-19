@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, text
 import pandas as pd
-import os, re
+import os
+import re
 from functools import lru_cache
 from dotenv import load_dotenv
 
@@ -23,13 +24,11 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
     :param state: full name of state, with first letter capitalized: "Cear
     :return: Pandas dataframe
     """
-    estados = {'RJ': 'Rio de Janeiro', 'ES': 'Espírito Santo', 'PR': 'Paraná', 'CE': 'Ceará'}
+    estados = {'RJ': 'Rio de Janeiro',
+               'ES': 'Espírito Santo', 'PR': 'Paraná', 'CE': 'Ceará'}
     if state in estados:
         state = estados[state]
-    conexao = create_engine("postgresql://{}:{}@{}/{}".format(config('PSQL_USER'),
-                                                              config('PSQL_PASSWORD'),
-                                                              config('PSQL_HOST'),
-                                                              config('PSQL_DB')))
+
     if doenca == 'dengue':
         tabela = 'Historico_alerta'
     elif doenca == 'chik':
@@ -41,15 +40,15 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
             tabela,
             state)
 
-        df = pd.read_sql_query(sql, conexao, index_col='id')
+        df = pd.read_sql_query(sql, db_engine, index_col='id')
     else:
         df = pd.read_sql_query(
             'select * from "Municipio"."{}" where municipio_geocodigo={} ORDER BY "data_iniSE" ASC;'.format(tabela,
                                                                                                             municipio),
-            conexao, index_col='id')
+            db_engine, index_col='id')
     df.data_iniSE = pd.to_datetime(df.data_iniSE)
     df.set_index('data_iniSE', inplace=True)
-    conexao.dispose()
+
     return df
 
 
@@ -98,12 +97,13 @@ def get_geocode(muname):
         while not gc:
             muname = muname[:l]
             res = conexao.execute(
-                text('select geocodigo, nome from "Dengue_global"."Municipio" WHERE nome ilike :search'),
+                text(
+                    'select geocodigo, nome from "Dengue_global"."Municipio" WHERE nome ilike :search'),
                 {"search": f"{muname}%"}
             )
             gc = res.fetchall()
             l -= 1
-            if l<3:
+            if l < 3:
                 return gc
 
         gc = gc[0][0]

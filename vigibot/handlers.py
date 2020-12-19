@@ -1,15 +1,18 @@
 from vigibot import loghandler, logformatter
 from vigibot.data import get_geocode, get_alerta
 import logging, os, random
-from sqlalchemy import create_engine, text
+import psycopg2
 from telegram.ext.dispatcher import run_async
 from telegram import ParseMode
+from telegram import InlineQueryResultArticle, InputTextMessageContent, Update
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from emoji import emojize, UNICODE_EMOJI_ALIAS
 from geopy.geocoders import Nominatim
 from functools import lru_cache
 from vigibot.twitter_client import api as tweetapi
 from vigibot.twitter_client import follow_all
+from uuid import uuid4
+from vigibot.chat.engine import get_bot
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -26,15 +29,18 @@ uni_emoji = {
 }
 
 location_keyboard = KeyboardButton(text="send_location", request_location=True)
-disease_keyboard = [[KeyboardButton('/alerta '+d+' Rio de Janeiro')] for d in ['dengue','chikungunya','zika']]
+disease_keyboard = [[KeyboardButton('/alerta ' + d + ' Rio de Janeiro')] for d in ['dengue', 'chikungunya', 'zika']]
 disease_keyboard_markup = ReplyKeyboardMarkup(disease_keyboard, one_time_keyboard=True)
 
-botdb_engine = create_engine("postgresql://{}:{}@{}/{}".format(
-    os.getenv('PSQL_USER'),
-    os.getenv('PSQL_PASSWORD'),
-    os.getenv('PSQL_HOST'),
-    os.getenv('PSQL_BOTDB')
-))
+# Setup Chat Engine
+chatbot = get_bot('Evigibot')
+
+
+def get_ppg2_connection():
+    conn = psycopg2.connect(f"dbname={os.getenv('PSQL_BOTDB')} user={os.getenv('PSQL_USER')} "
+                            f"host={os.getenv('PSQL_HOST')} password={os.getenv('PSQL_PASSWORD')}"
+                            )
+    return conn
 
 
 def error(bot, update, error_msg):
@@ -51,7 +57,6 @@ def get_user_command_and_name(update):
     return usr_command, usr_name
 
 
-@run_async
 def bom_dia(update, context):
     # module_logger.info("entrou em bom_dia")
     user = update.message.from_user
@@ -64,11 +69,12 @@ def bom_dia(update, context):
 
     emoj = emojize(':smiley:', use_aliases=True)
     update.message.reply_text("Bom dia! " + user.first_name + emoj, parse_mode="Markdown")
-    update.message.reply_text('Siga-me no <a href="https://twitter.com/evigilancia2">Twitter!</a>', parse_mode=ParseMode.HTML)
+    update.message.reply_text('Siga-me no <a href="https://twitter.com/evigilancia2">Twitter!</a>',
+                              parse_mode=ParseMode.HTML)
     module_logger.info("Said 'Bom dia!' to %s", usr_chat_id)
     if not check_user_exists(user.id):
         add_user(user)
-        update.message.reply_text("Prazer em te conhecer! "+ emoj)
+        update.message.reply_text("Prazer em te conhecer! " + emoj)
         reply_markup = ReplyKeyboardMarkup([[location_keyboard]])
         update.message.reply_text("Eu sou o Vigibot, minha missão é manter você informadx sobre as arboviroses!")
         update.message.reply_text(
@@ -77,11 +83,19 @@ def bom_dia(update, context):
     follow_all()
 
 
-@run_async
+
 def inlinequery(update, context):
     query = update.inline_query.query
+    response = InputTextMessageContent(chatbot.get_response(query).text)
+    result = [
+        InlineQueryResultArticle(
+            id=uuid4(), title="Answer", input_message_content=response
+        ),
+    ]
+    update.inline_query.answer(result)
 
-@run_async
+
+
 def alerta(update, context):
     usr_chat_id = update.message.chat_id
     if context.args == []:
@@ -115,12 +129,13 @@ def alerta(update, context):
               }
 
     update.message.reply_text(
-        "Estamos no nivel " + niveis[alrt[0]] + ", para a " + doenca + ", na semana " + str(alrt[1])[-2:]+" em "+cidade+".",
+        "Estamos no nivel " + niveis[alrt[0]] + ", para a " + doenca + ", na semana " + str(alrt[1])[
+                                                                                        -2:] + " em " + cidade + ".",
         parse_mode="Markdown")
     update.message.reply_text(
         f'Para maiores detalhes, consulte o <a href="https://info.dengue.mat.br/alerta/{gc}/dengue">Infodengue</a>.',
         parse_mode=ParseMode.HTML)
-    word = random.choice(['turma', 'Turma', 'galera', 'Galera', 'amigx', 'Amigx', 'amigxs', 'Amigxs','gente','Gente'])
+    word = random.choice(['turma', 'Turma', 'galera', 'Galera', 'amigx', 'Amigx', 'amigxs', 'Amigxs', 'gente', 'Gente'])
     try:
         tweetapi.update_status(
             f"Oi {word}, estamos no nivel {niveis[alrt[0]]}, para a {doenca} em {cidade}.\nPara maiores detalhes, consulte o https://info.dengue.mat.br/alerta/{gc}/dengue")
@@ -132,7 +147,7 @@ def alerta(update, context):
 def unknown(update, context):
     emoj = emojize(':smiley:', use_aliases=True)
     update.message.reply_text("Desculpa, Nao conheço este comando. " + emoj,
-                             parse_mode="Markdown")
+                              parse_mode="Markdown")
 
 
 def location(update, context):
@@ -147,22 +162,31 @@ def location(update, context):
 
 
 def check_user_exists(tid):
-    with botdb_engine.connect() as conexao:
-        res = conexao.execute(f'select * from bot_users where telegram_uid={tid}')  # , {'tid': tid}))
-        res = res.fetchone()
+    # eng = get_engine(pool_size=1)
+    # with eng.connect() as conexao:
+    conexao = get_ppg2_connection()
+    cursor = conexao.cursor()
+    cursor.execute(f'select * from bot_users where telegram_uid={tid}')  # , {'tid': tid}))
+    res = cursor.fetchone()
     return (res is not None)
 
 
 def add_user(user):
-    with botdb_engine.connect() as conexao:
-        conexao.execute(
-            f'insert into bot_users(telegram_uid, first_name, last_name) values({user.id}, \'{user.first_name}\',\'{user.last_name}\');')
+    # eng = get_engine(pool_size=1)
+    # with eng.connect() as conexao:
+    conexao = get_ppg2_connection()
+    cursor = conexao.cursor()
+    cursor.execute(
+        f'insert into bot_users(telegram_uid, first_name, last_name) values({user.id}, \'{user.first_name}\',\'{user.last_name}\');')
 
 
 def add_location(user, location):
-    with botdb_engine.connect() as conexao:
-        sql = text("update bot_users set latitude= :lat, longitude= :long where telegram_uid= :id;")
-        conexao.execute(sql, **{'lat': location.latitude, 'long': location.longitude, 'id': user.id})
+    # eng = get_engine(pool_size=1)
+    # with eng.connect() as conexao:
+    conexao = get_ppg2_connection()
+    cursor = conexao.cursor()
+    sql = f"update bot_users set latitude= {location.latitude}, longitude= {location.longitude} where telegram_uid= {user.id};"
+    cursor.execute(sql)
 
 
 @lru_cache(maxsize=1000)
