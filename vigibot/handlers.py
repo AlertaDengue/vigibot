@@ -1,18 +1,21 @@
-from vigibot import loghandler, logformatter
-from vigibot.data import get_geocode, get_alerta
-import logging, os, random
-import psycopg2
-from telegram.ext.dispatcher import run_async
-from telegram import ParseMode
-from telegram import InlineQueryResultArticle, InputTextMessageContent, Update
-from telegram import KeyboardButton, ReplyKeyboardMarkup
-from emoji import emojize, UNICODE_EMOJI_ALIAS
-from geopy.geocoders import Nominatim
+import logging
+import os
+import random
 from functools import lru_cache
+from uuid import uuid4
+
+import psycopg2
+from emoji import emojize
+from geopy.geocoders import Nominatim
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram import KeyboardButton, ReplyKeyboardMarkup
+from telegram import ParseMode
+
+from vigibot import loghandler
+from vigibot.chat.engine import get_bot
+from vigibot.data import get_geocode, get_alerta
 from vigibot.twitter_client import api as tweetapi
 from vigibot.twitter_client import follow_all
-from uuid import uuid4
-from vigibot.chat.engine import get_bot
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -83,7 +86,6 @@ def bom_dia(update, context):
     follow_all()
 
 
-
 def inlinequery(update, context):
     query = update.inline_query.query
     response = InputTextMessageContent(chatbot.get_response(query).text)
@@ -93,7 +95,6 @@ def inlinequery(update, context):
         ),
     ]
     update.inline_query.answer(result)
-
 
 
 def alerta(update, context):
@@ -159,7 +160,6 @@ def location(update, context):
                               '\nagora posso te informar sobre a situaçao na sua cidade!'
                               )
     add_location(user, user_location)
-
 
 
 # Utility functions
