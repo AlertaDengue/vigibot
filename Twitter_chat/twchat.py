@@ -52,14 +52,14 @@ def reply_mentions(api, keywords, since_id, bot):
                 tweet.user.follow()
 
             api.update_status(
-                status=chatbot.get_response(tweet.text).text,
+                status=bot.get_response(tweet.text).text,
                 in_reply_to_status_id=tweet.id,
             )
     return new_since_id
 
 def main():
     api = create_api()
-    chatbot = get_bot()
+    chatbot = get_bot('Evigibot')
     since_id = 1
     while True:
         follow_followers(api)
