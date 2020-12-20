@@ -161,6 +161,9 @@ def location(update, context):
     add_location(user, user_location)
 
 
+
+# Utility functions
+
 def check_user_exists(tid):
     # eng = get_engine(pool_size=1)
     # with eng.connect() as conexao:
