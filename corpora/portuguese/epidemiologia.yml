@@ -3,9 +3,13 @@ categories:
 conversations:
 - - você é epidemiologista?
   - Eu sou um robô, e estou sempre aprendendo com epidemiologistas.
+- - Para quem você trabalha
+  - Eu sou um leal funcionario do projeto Infodengue, https://info.dengue.mat.br
 - - Dengue
   - A dengue é uma doença viral transmitida por mosquitos do gênero Aedes.
 - - O que é dengue?
+  - A dengue é uma doença viral transmitida por mosquitos do gênero Aedes.
+- - o que é dengue
   - A dengue é uma doença viral transmitida por mosquitos do gênero Aedes.
 - - A dengue é uma doença grave?
   - Sim, na sua forma hemorrágica, a dengue pode levar a hospitalizações e mesmo ao óbito.
@@ -13,9 +17,15 @@ conversations:
   - Chikungunya é uma doença viral transmitida por mosquitos do gênero Aedes.
 - - O que é chikungunya?
   - Chikungunya é uma doença viral transmitida por mosquitos do gênero Aedes.
+- - o que é chikungunya
+  - Chikungunya é uma doença viral transmitida por mosquitos do gênero Aedes.
 - - Zika
-  - A Zika é uma doença vira transmittida tanto por mosquitos quanto por contatos sexuais.
+  - A Zika é uma doença viral transmitida tanto por mosquitos quanto por contatos sexuais.
 - - O que é Zika?
-  - A Zika é uma doença vira transmittida tanto por mosquitos quanto por contatos sexuais.
+  - A Zika é uma doença viral transmitida tanto por mosquitos quanto por contatos sexuais.
+- - o que é zika
+  - A Zika é uma doença viral transmitida tanto por mosquitos quanto por contatos sexuais.
 - - O que é epidemiologia?
   - A epidemiologia é a ciência que estuda as doenças e seus determinantes.
+- - Estou com dengue?
+  - Os sintomas mais comuns da dengue são febre, manchas vermelhas no corpo, dor de cabeça, dores nos músculos e nas articulações

@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 
 import tweepy
@@ -7,15 +8,37 @@ from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 from dotenv import load_dotenv
 from tweepy.error import TweepError
+import random
 
 load_dotenv()
-logger = logging.getLogger()
-with open('keywords') as k:
+logger = logging.getLogger(name="Twitter chat")
+logger.addHandler(logging.StreamHandler(sys.stdout))
+
+pth = os.path.split(__file__)[0]
+with open(os.path.join(pth, 'keywords')) as k:
     keywords = k.readlines()
+
+infodengue_urls = ['https://info.dengue.mat.br',
+                   'https://info.dengue.mat.br/informacoes/',
+                   'https://info.dengue.mat.br/alerta/CE/chikungunya',
+                   'https://info.dengue.mat.br/alerta/CE/dengue',
+                   'https://info.dengue.mat.br/alerta/CE/zika',
+                   'https://info.dengue.mat.br/alerta/MG',
+                   'https://info.dengue.mat.br/alerta/ES',
+                   'https://info.dengue.mat.br/alerta/MA/dengue',
+                   ]
 
 
 def get_bot(name):
-    chatbot = ChatBot(name)
+    chatbot = ChatBot(name,
+                      logic_adapters=[
+                          {
+                              'import_path': 'chatterbot.logic.BestMatch',
+                              'default_response': 'Não entendi. Me pergunte algo sobre dengue, zika ou chikungunya, ou visite:',
+                              'maximum_similarity_threshold': 0.30
+                          }
+                      ]
+                      )
     trainer = ChatterBotCorpusTrainer(chatbot)
     trainer.train('corpora.portuguese')
     return chatbot
@@ -34,55 +57,52 @@ def create_api():
     logger.info("API created")
     return api
 
+
 def limit_handled(cursor):
     while True:
         try:
             yield cursor.next()
         except (tweepy.RateLimitError, StopIteration):
-            time.sleep(5 * 60)
+            time.sleep(60)
 
 
-def follow_followers(api):
-    logger.info("Retrieving and following followers")
-    for follower in limit_handled(tweepy.Cursor(api.followers).items()):
-        if not follower.following:
-            logger.info(f"Following {follower.name}")
-            try:
-                follower.follow()
-            except TweepError as e:
-                pass
-
-
-def reply_mentions(api, keywords, since_id, bot):
+def reply_mentions(api, keywords, since_id, Cbot):
     logger.info("Retrieving mentions")
+    # print("Checking mentions")
     new_since_id = since_id
-    for tweet in limit_handled(tweepy.Cursor(api.mentions_timeline,
-                               since_id=since_id).items()):
+    for tweet in tweepy.Cursor(api.mentions_timeline,
+                               since_id=since_id).items():
         new_since_id = max(tweet.id, new_since_id)
         if tweet.in_reply_to_status_id is not None:
             continue
-        if any(keyword in tweet.text.lower() for keyword in keywords):
-            logger.info(f"Answering to {tweet.user.name}")
+        # if any(keyword in tweet.text.lower() for keyword in keywords):
+        #     logger.info(f"Answering to {tweet.user.name}")
+        if tweet.text.startswith('Peguei dos amigos do @evigilancia2'):
+            continue
+        msg = tweet.text.lstrip('@evigilancia2')
+        ans = f'@{tweet.user.screen_name} ' + Cbot.get_response(msg).text
+        if ans.endswith('ou visite:'):
+            ans += random.choice(infodengue_urls)
+        logger.info(f"Pergunta: {msg}, Resposta: {ans}")
+        # print(msg)
+        # print(ans)
+        # print(tweet.id, tweet.user.screen_name)
+        if not tweet.user.following:
+            tweet.user.follow()
 
-            if not tweet.user.following:
-                tweet.user.follow()
-
-            api.update_status(
-                status=bot.get_response(tweet.text).text,
-                in_reply_to_status_id=tweet.id,
-            )
+        api.update_status(
+            status=ans,
+            in_reply_to_status_id=tweet.id,
+        )
     return new_since_id
 
 
 def main():
     api = create_api()
-    chatbot = get_bot('Evigibot')
+    chatbot = get_bot('Evigilancia')
     since_id = 1
     while True:
-        follow_followers(api)
-        logger.info("Waiting...")
-        time.sleep(60)
-        reply_mentions(api, keywords, since_id=since_id, bot=chatbot)
+        since_id = reply_mentions(api, keywords, since_id=since_id, Cbot=chatbot)
         logger.info("Waiting...")
         time.sleep(60)
 

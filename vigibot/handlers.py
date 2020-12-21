@@ -79,7 +79,7 @@ def bom_dia(update, context):
         add_user(user)
         update.message.reply_text("Prazer em te conhecer! " + emoj)
         reply_markup = ReplyKeyboardMarkup([[location_keyboard]])
-        update.message.reply_text("Eu sou o Vigibot, minha missão é manter você informadx sobre as arboviroses!")
+        update.message.reply_text("Eu sou o Vigibot, minha missão é manter você informad@ sobre as arboviroses!")
         update.message.reply_text(
             "Voce se importa de compartilhar sua localizaçao comigo? \nAssim posso te enviar informaçoes sobre o seu local!",
             reply_markup=reply_markup)
@@ -136,7 +136,7 @@ def alerta(update, context):
     update.message.reply_text(
         f'Para maiores detalhes, consulte o <a href="https://info.dengue.mat.br/alerta/{gc}/dengue">Infodengue</a>.',
         parse_mode=ParseMode.HTML)
-    word = random.choice(['turma', 'Turma', 'galera', 'Galera', 'amigx', 'Amigx', 'amigxs', 'Amigxs', 'gente', 'Gente'])
+    word = random.choice(['turma', 'Turma', 'galera', 'Galera', 'amig@', 'Amig@', 'amig@s', 'Amig@s', 'gente', 'Gente'])
     try:
         tweetapi.update_status(
             f"Oi {word}, estamos no nivel {niveis[alrt[0]]}, para a {doenca} em {cidade}.\nPara maiores detalhes, consulte o https://info.dengue.mat.br/alerta/{gc}/dengue")
