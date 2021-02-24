@@ -1,8 +1,9 @@
 from chatterbot.trainers import Trainer
 from chatterbot import languages
-from chatterbot.tagging import PosLemmaTagger
 from chatterbot.conversation import Statement
 from chatterbot import utils
+import spacy
+import string
 import os
 
 class InfodengueCorpusTrainer(Trainer):
@@ -14,7 +15,7 @@ class InfodengueCorpusTrainer(Trainer):
     def train(self, *corpus_paths):
         from chatterbot.corpus import load_corpus, list_corpus_files
 
-        tagger = PosLemmaTagger(language=languages.POR)
+        tagger = PosLemmaTagger(language='pt_core_news_sm')
 
         data_file_paths = []
 
@@ -62,3 +63,54 @@ class InfodengueCorpusTrainer(Trainer):
 
             if statements_to_create:
                 self.chatbot.storage.create_many(statements_to_create)
+
+class PosLemmaTagger(object):
+
+    def __init__(self, language=None):
+        import spacy
+
+        self.language = language or 'en_core_web_sm'
+
+        self.punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
+
+        self.nlp = spacy.load(language)
+
+    def get_text_index_string(self, text):
+        """
+        Return a string of text containing part-of-speech, lemma pairs.
+        """
+        bigram_pairs = []
+
+        if len(text) <= 2:
+            text_without_punctuation = text.translate(self.punctuation_table)
+            if len(text_without_punctuation) >= 1:
+                text = text_without_punctuation
+
+        document = self.nlp(text)
+
+        if len(text) <= 2:
+            bigram_pairs = [
+                token.lemma_.lower() for token in document
+            ]
+        else:
+            tokens = [
+                token for token in document if token.is_alpha and not token.is_stop
+            ]
+
+            if len(tokens) < 2:
+                tokens = [
+                    token for token in document if token.is_alpha
+                ]
+
+            for index in range(1, len(tokens)):
+                bigram_pairs.append('{}:{}'.format(
+                    tokens[index - 1].pos_,
+                    tokens[index].lemma_.lower()
+                ))
+
+        if not bigram_pairs:
+            bigram_pairs = [
+                token.lemma_.lower() for token in document
+            ]
+
+        return ' '.join(bigram_pairs)
