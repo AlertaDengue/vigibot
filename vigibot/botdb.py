@@ -13,5 +13,6 @@ def get_ppg2_connection():
 def save_question(pergunta, rede, userid):
     conn = get_ppg2_connection()
     cursor = conn.cursor()
-    sql = f"insert into pergunta(network,username,pergunta) values({rede},{userid},{pergunta});"
+    sql = f"insert into pergunta(network,username,pergunta) values('{rede}','{userid}','{pergunta}');"
     cursor.execute(sql)
+    conn.commit()
