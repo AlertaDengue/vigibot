@@ -6,6 +6,7 @@ import time
 import tweepy
 from chatterbot import ChatBot
 from vigibot.trainers import InfodengueCorpusTrainer
+from vigibot.botdb import save_question
 from dotenv import load_dotenv
 from tweepy.error import TweepError
 import random
@@ -82,6 +83,7 @@ def reply_mentions(api, keywords, since_id, Cbot):
         if tweet.text.startswith('Peguei dos amigos do @evigilancia2'):
             continue
         msg = tweet.text.lstrip('@evigilancia2')
+        save_question(msg, 'Twitter', tweet.user.screen_name)
         ans = f'@{tweet.user.screen_name} ' + Cbot.get_response(msg).text
         if ans.endswith('ou visite:'):
             ans += random.choice(infodengue_urls)

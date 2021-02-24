@@ -85,7 +85,7 @@ def get_alerta(geocodigo, doenca='dengue'):
 @lru_cache(maxsize=800)
 def get_geocode(muname):
     """
-    returns the geocode for a city name
+    Returns the geocode for a city name
     :param muname: name of the city
     :return: geocode (str)
     """

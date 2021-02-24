@@ -16,6 +16,7 @@ from vigibot.chat.engine import get_bot
 from vigibot.data import get_geocode, get_alerta
 from vigibot.twitter_client import api as tweetapi
 from vigibot.twitter_client import follow_all
+from vigibot.botdb import get_ppg2_connection, save_question
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -38,12 +39,6 @@ disease_keyboard_markup = ReplyKeyboardMarkup(disease_keyboard, one_time_keyboar
 # Setup Chat Engine
 chatbot = get_bot('Evigibot')
 
-
-def get_ppg2_connection():
-    conn = psycopg2.connect(f"dbname={os.getenv('PSQL_BOTDB')} user={os.getenv('PSQL_USER')} "
-                            f"host={os.getenv('PSQL_HOST')} password={os.getenv('PSQL_PASSWORD')}"
-                            )
-    return conn
 
 
 def error(bot, update, error_msg):
@@ -88,6 +83,7 @@ def bom_dia(update, context):
 
 def inlinequery(update, context):
     query = update.inline_query.query
+    save_question(query, 'Telegram', update.message.from_user)
     response = InputTextMessageContent(chatbot.get_response(query).text)
     result = [
         InlineQueryResultArticle(
