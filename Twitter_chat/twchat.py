@@ -5,7 +5,7 @@ import time
 
 import tweepy
 from chatterbot import ChatBot
-from chatterbot.trainers import ChatterBotCorpusTrainer
+from vigibot.trainers import InfodengueCorpusTrainer
 from dotenv import load_dotenv
 from tweepy.error import TweepError
 import random
@@ -26,6 +26,8 @@ infodengue_urls = ['https://info.dengue.mat.br',
                    'https://info.dengue.mat.br/alerta/MG',
                    'https://info.dengue.mat.br/alerta/ES',
                    'https://info.dengue.mat.br/alerta/MA/dengue',
+                   'https://info.dengue.mat.br/alerta/PR/dengue',
+                   'https://info.dengue.mat.br/alerta/SC/dengue',
                    ]
 
 
@@ -35,11 +37,11 @@ def get_bot(name):
                           {
                               'import_path': 'chatterbot.logic.BestMatch',
                               'default_response': 'Não entendi. Me pergunte algo sobre dengue, zika ou chikungunya, ou visite:',
-                              'maximum_similarity_threshold': 0.30
+                              'maximum_similarity_threshold': 0.95
                           }
                       ]
                       )
-    trainer = ChatterBotCorpusTrainer(chatbot)
+    trainer = InfodengueCorpusTrainer(chatbot)
     trainer.train('corpora.portuguese')
     return chatbot
 
