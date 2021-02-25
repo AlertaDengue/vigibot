@@ -105,8 +105,8 @@ def bom_dia(update, context):
 def inlinequery(update, context):
     query = update.inline_query.query
     try:
-        user = 'Unknown' if update.message is None else update.message.from_user.username
-        save_question(query, 'Telegram', str(user), update.message.chat_id)
+        user = update.inline_query.from_user.username
+        save_question(query, 'Telegram', str(user), int(update.inline_query.id))
     except Exception as e:
         context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query: {e}",
                                  parse_mode=ParseMode.HTML)
