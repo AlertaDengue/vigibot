@@ -105,7 +105,8 @@ def bom_dia(update, context):
 def inlinequery(update, context):
     query = update.inline_query.query
     try:
-        save_question(query, 'Telegram', update.message.from_user)
+        user = update.to_dict()['chat']['username']
+        save_question(query, 'Telegram', str(user))
     except Exception as e:
         context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query: {e}",
                                  parse_mode=ParseMode.HTML)
