@@ -42,8 +42,7 @@ def get_bot(name):
                           }
                       ],
                       storage_adapter='chatterbot.storage.SQLStorageAdapter',
-                      database_uri='sqlite:///database.sqlite3'
-
+                      database_uri='sqlite:///db.sqlite3'
                       )
     trainer = InfodengueCorpusTrainer(chatbot)
     trainer.train('corpora.portuguese')

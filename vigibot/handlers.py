@@ -106,7 +106,7 @@ def inlinequery(update, context):
     query = update.inline_query.query
     try:
         user = update.to_dict()['chat']['username']
-        save_question(query, 'Telegram', str(user))
+        save_question(query, 'Telegram', str(user), update.message.chat_id)
     except Exception as e:
         context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query: {e}",
                                  parse_mode=ParseMode.HTML)
@@ -133,8 +133,8 @@ def alerta(update, context):
         doenca = 'chik'
     # print(doenca, cidade)
     module_logger.info("%s fez uma consulta de alerta sobre %s em %s", usr_chat_id, doenca, cidade)
+
     gc = get_geocode(cidade)
-    # print(gc)
     if not isinstance(gc, int):
         update.message.reply_text(
             emojize(uni_emoji['thinking']) + " Nao conheço a cidade \"" + cidade + "\". Voce digitou os acentos?")

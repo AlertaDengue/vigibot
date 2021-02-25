@@ -21,9 +21,13 @@ class MyTestCase(unittest.TestCase):
         gc = get_geocode('sldfk skdjf')
         self.assertEqual([], gc)
 
-    def test_find_geocode(self):
+    def test_find_geocode_rio(self):
         gc = get_geocode('rio de janeiro')
         self.assertEqual(gc, 3304557)
+
+    def test_find_geocode_senges(self):
+        gc = get_geocode('sengés')
+        self.assertEqual(gc, 4126306)
 
     def test_get_alerta(self):
         alerta = get_alerta(3304557, 'dengue')
