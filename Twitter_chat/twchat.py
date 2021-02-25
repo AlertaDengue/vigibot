@@ -6,7 +6,7 @@ import time
 import tweepy
 from chatterbot import ChatBot
 from vigibot.trainers import InfodengueCorpusTrainer
-from vigibot.botdb import save_question
+from vigibot.botdb import save_question, is_new_id
 from dotenv import load_dotenv
 from tweepy.error import TweepError
 import random
@@ -40,7 +40,8 @@ def get_bot(name):
                               'default_response': 'Não entendi. Me pergunte algo sobre dengue, zika ou chikungunya, ou visite:',
                               'maximum_similarity_threshold': 0.95
                           }
-                      ]
+                      ],
+                      storage_adapter=None
                       )
     trainer = InfodengueCorpusTrainer(chatbot)
     trainer.train('corpora.portuguese')
@@ -73,8 +74,11 @@ def reply_mentions(api, keywords, since_id, Cbot):
     logger.info("Retrieving mentions")
     # print("Checking mentions")
     new_since_id = since_id
+
     for tweet in tweepy.Cursor(api.mentions_timeline,
                                since_id=since_id).items():
+        if not is_new_id(int(tweet.id)):  # check if this tweet has already been answered.
+            continue
         new_since_id = max(tweet.id, new_since_id)
         if tweet.in_reply_to_status_id is not None:
             continue

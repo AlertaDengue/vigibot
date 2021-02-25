@@ -6,6 +6,7 @@ from functools import lru_cache
 from dotenv import load_dotenv
 
 load_dotenv()
+
 def get_engine():
     db_engine = create_engine("postgresql://{}:{}@{}/{}".format(
         os.getenv('PSQL_USER'),
@@ -64,7 +65,7 @@ def get_city_names(geocodigos):
     db_engine = get_engine()
     with db_engine.connect() as conexao:
         res = conexao.execute(
-            'select geocodigo, nome from "Dengue_global"."Municipio" WHERE geocodigo in {};'.format(tuple(geocodigos)))
+            f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE geocodigo in {tuple(geocodigos)};')
         res = res.fetchall()
 
     return res
