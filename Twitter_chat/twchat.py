@@ -41,7 +41,7 @@ def get_bot(name):
                               'maximum_similarity_threshold': 0.95
                           }
                       ],
-                      storage_adapter='sqlite:///db.sqlite3'
+                      storage_adapter=''
                       )
     trainer = InfodengueCorpusTrainer(chatbot)
     trainer.train('corpora.portuguese')
