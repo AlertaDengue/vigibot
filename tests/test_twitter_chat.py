@@ -17,3 +17,8 @@ class TestChat(unittest.TestCase):
         bot = get_bot('evigilancia')
         ans = bot.get_response('O que é epidemiologia?').text
         self.assertIn('epidemiologia', ans.lower())
+
+    def test_pergunta_covid(self):
+        bot = get_bot('evigilancia')
+        ans = bot.get_response('O que é covid19 ?').text
+        self.assertIn('covid19', ans.lower())

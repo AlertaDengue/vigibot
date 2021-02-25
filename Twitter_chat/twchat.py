@@ -82,7 +82,7 @@ def reply_mentions(api, keywords, since_id, Cbot):
         #     logger.info(f"Answering to {tweet.user.name}")
         if tweet.text.startswith('Peguei dos amigos do @evigilancia2'):
             continue
-        msg = tweet.text.lstrip('@evigilancia2')
+        msg = tweet.text.lstrip('@evigilancia2').lower()
         save_question(msg, 'Twitter', tweet.user.screen_name)
         ans = f'@{tweet.user.screen_name} ' + Cbot.get_response(msg).text
         if ans.endswith('ou visite:'):

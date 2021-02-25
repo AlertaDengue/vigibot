@@ -3,6 +3,8 @@ import os
 import random
 from functools import lru_cache
 from uuid import uuid4
+import html, json
+import traceback
 
 import psycopg2
 from emoji import emojize
@@ -39,10 +41,26 @@ disease_keyboard_markup = ReplyKeyboardMarkup(disease_keyboard, one_time_keyboar
 # Setup Chat Engine
 chatbot = get_bot('Evigibot')
 
+DEVELOPER_CHAT_ID = 159627190
 
+def error(update, context):
+    module_logger.error("Exception handling update: ", exc_info=context.error)
 
-def error(bot, update, error_msg):
-    module_logger.warning('Update "{}" caused error: {}'.format(update, error_msg))
+    # traceback.format_exception returns the usual python message about an exception, but as a
+    # list of strings rather than a single string, so we have to join them together.
+    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb_string = ''.join(tb_list)
+    message = (
+        f'An exception was raised while handling an update\n'
+        f'<pre>update = {html.escape(json.dumps(update.to_dict(), indent=2, ensure_ascii=False))}'
+        '</pre>\n\n'
+        f'<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n'
+        f'<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n'
+        f'<pre>{html.escape(tb_string)}</pre>'
+    )
+
+    # Finally, send the message
+    context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=message, parse_mode=ParseMode.HTML)
 
 
 def get_user_command_and_name(update):
