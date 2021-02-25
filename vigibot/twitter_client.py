@@ -1,4 +1,5 @@
 import tweepy
+from tweepy.error import TweepError
 from dotenv import load_dotenv
 import os
 
@@ -14,4 +15,7 @@ def follow_all():
     Follow followers no tweeter
     """
     for follower in tweepy.Cursor(api.followers).items():
-        follower.follow()
+        try:
+            follower.follow()
+        except TweepError:
+            pass
