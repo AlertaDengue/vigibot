@@ -103,11 +103,14 @@ def reply_mentions(api, keywords, since_id, Cbot):
         # print(tweet.id, tweet.user.screen_name)
         if not tweet.user.following:
             tweet.user.follow()
+        try:
+            api.update_status(
+                status=ans,
+                in_reply_to_status_id=tweet.id,
+            )
+        except TweepError as e:
+            logger.error(f'Could not reply: {e}')
 
-        api.update_status(
-            status=ans,
-            in_reply_to_status_id=tweet.id,
-        )
     return new_since_id
 
 
