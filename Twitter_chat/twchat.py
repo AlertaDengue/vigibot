@@ -91,7 +91,7 @@ def reply_mentions(api, keywords, since_id, Cbot):
             continue
         msg = tweet.text.lstrip('@evigilancia2').lower()
         try:
-            save_question(msg, 'Twitter', tweet.user.screen_name)
+            save_question(msg, 'Twitter', tweet.user.screen_name, tweet.id)
         except Exception as e:
             logger.error(f"Não consegui salvar mensagem {msg} do Twitter:\n {e}")
         ans = f'@{tweet.user.screen_name} ' + Cbot.get_response(msg).text
