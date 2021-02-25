@@ -41,7 +41,10 @@ def get_bot(name):
                               'maximum_similarity_threshold': 0.95
                           }
                       ],
-                      storage_adapter=''
+                      storage_adapter={
+                          'import_path': 'chatterbot.storage.SQLStorageAdapter',
+                          'read_only': True
+                      }
                       )
     trainer = InfodengueCorpusTrainer(chatbot)
     trainer.train('corpora.portuguese')
