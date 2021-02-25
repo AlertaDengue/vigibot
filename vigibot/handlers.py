@@ -50,17 +50,20 @@ def error(update, context):
     # list of strings rather than a single string, so we have to join them together.
     tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
     tb_string = ''.join(tb_list)
-    message = (
-        f'An exception was raised while handling an update\n'
-        f'<pre>update = {html.escape(json.dumps(update.to_dict(), indent=2, ensure_ascii=False))}'
-        '</pre>\n\n'
-        f'<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n'
-        f'<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n'
-        f'<pre>{html.escape(tb_string)}</pre>'
-    )
+    try:
+        message = (
+            f'An exception was raised while handling an update\n'
+            f'<pre>update = {html.escape(json.dumps(update.to_dict(), indent=2, ensure_ascii=False))}'
+            '</pre>\n\n'
+            f'<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n'
+            f'<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n'
+            f'<pre>{html.escape(tb_string)}</pre>'
+        )
 
-    # Finally, send the message
-    context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=message, parse_mode=ParseMode.HTML)
+        # Finally, send the message
+        context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=message, parse_mode=ParseMode.HTML)
+    except Exception as e:
+        context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem sending traceback {e}", parse_mode=ParseMode.HTML)
 
 
 def get_user_command_and_name(update):
@@ -101,7 +104,11 @@ def bom_dia(update, context):
 
 def inlinequery(update, context):
     query = update.inline_query.query
-    save_question(query, 'Telegram', update.message.from_user)
+    try:
+        save_question(query, 'Telegram', update.message.from_user)
+    except Exception as e:
+        context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query: {e}",
+                                 parse_mode=ParseMode.HTML)
     response = InputTextMessageContent(chatbot.get_response(query).text)
     result = [
         InlineQueryResultArticle(

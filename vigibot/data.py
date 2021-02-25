@@ -6,13 +6,15 @@ from functools import lru_cache
 from dotenv import load_dotenv
 
 load_dotenv()
+def get_engine():
+    db_engine = create_engine("postgresql://{}:{}@{}/{}".format(
+        os.getenv('PSQL_USER'),
+        os.getenv('PSQL_PASSWORD'),
+        os.getenv('PSQL_HOST'),
+        os.getenv('PSQL_DB')
+    ))
+    return db_engine
 
-db_engine = create_engine("postgresql://{}:{}@{}/{}".format(
-    os.getenv('PSQL_USER'),
-    os.getenv('PSQL_PASSWORD'),
-    os.getenv('PSQL_HOST'),
-    os.getenv('PSQL_DB')
-))
 
 
 def get_alerta_table(municipio=None, state=None, doenca='dengue'):
@@ -24,6 +26,7 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
     :param state: full name of state, with first letter capitalized: "Cear
     :return: Pandas dataframe
     """
+    db_engine = get_engine()
     estados = {'RJ': 'Rio de Janeiro',
                'ES': 'Espírito Santo', 'PR': 'Paraná', 'CE': 'Ceará'}
     if state in estados:
@@ -58,6 +61,7 @@ def get_city_names(geocodigos):
     :param geocodigos: list of 7-digit geocodes.
     :return:
     """
+    db_engine = get_engine()
     with db_engine.connect() as conexao:
         res = conexao.execute(
             'select geocodigo, nome from "Dengue_global"."Municipio" WHERE geocodigo in {};'.format(tuple(geocodigos)))
@@ -73,6 +77,7 @@ def get_alerta(geocodigo, doenca='dengue'):
         tabela = 'Historico_alerta_chik'
     elif doenca == 'zika':
         tabela = 'Historico_alerta_zika'
+    db_engine = get_engine()
     with db_engine.connect() as conexao:
         res = conexao.execute(
             f'select nivel, "SE", municipio_geocodigo from "Municipio"."{tabela}" WHERE municipio_geocodigo={geocodigo} ORDER BY "data_iniSE" DESC limit 1;'
@@ -92,6 +97,7 @@ def get_geocode(muname):
     # replace accents by '_' because Postgresql will accept any character for the position
     # muname = re.sub(r'[^\x00-\x7F]','_', muname)
     l = len(muname)
+    db_engine = get_engine()
     with db_engine.connect() as conexao:
         gc = []
         while not gc:

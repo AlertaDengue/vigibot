@@ -83,7 +83,10 @@ def reply_mentions(api, keywords, since_id, Cbot):
         if tweet.text.startswith('Peguei dos amigos do @evigilancia2'):
             continue
         msg = tweet.text.lstrip('@evigilancia2').lower()
-        save_question(msg, 'Twitter', tweet.user.screen_name)
+        try:
+            save_question(msg, 'Twitter', tweet.user.screen_name)
+        except Exception as e:
+            logger.error(f"Não consegui salvar mensagem {msg} do Twitter:\n {e}")
         ans = f'@{tweet.user.screen_name} ' + Cbot.get_response(msg).text
         if ans.endswith('ou visite:'):
             ans += random.choice(infodengue_urls)
