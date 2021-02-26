@@ -10,6 +10,7 @@ import psycopg2
 from emoji import emojize
 from geopy.geocoders import Nominatim
 from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import ChosenInlineResultHandler
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from telegram import ParseMode
 
@@ -108,15 +109,20 @@ def inlinequery(update, context):
     response = InputTextMessageContent(chatbot.get_response(query).text)
     result = [
         InlineQueryResultArticle(
-            id=uuid4(), title="Answer", input_message_content=response
+            id=uuid4(), title="Answer", input_message_content=response,
+            url='https://info.dengue.mat.br'
         ),
     ]
 
     update.inline_query.answer(result)
+
+def on_inline_result_chosen(update, context):
+    result = update.chosen_inline_result
+    result_id = result.result_id
+    query = result.query
+    username = result.from_user.username
     try:
-        user = update.inline_query.from_user.username
-        chosen_query = update.chosen_inline_result.query
-        save_question(chosen_query, 'Telegram', str(user), int(update.inline_query.id))
+        save_question(query, 'Telegram', str(username), int(update.inline_message_id))
     except Exception as e:
         context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query: {e}",
                                  parse_mode=ParseMode.HTML)

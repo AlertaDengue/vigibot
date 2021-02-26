@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 from telegram.ext import Updater, Filters
-from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, InlineQueryHandler
+from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, InlineQueryHandler, ChosenInlineResultHandler
 from vigibot import logformatter, loghandler
 import logging
 import os
 
-from vigibot.handlers import bom_dia, error, alerta, unknown, location, inlinequery
+from vigibot.handlers import bom_dia, error, alerta, unknown, location, inlinequery, on_inline_result_chosen
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,6 +45,9 @@ def main():
     dispatcher.add_handler(location_handler)
 
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
+
+    result_chosen_handler = ChosenInlineResultHandler(on_inline_result_chosen)
+    dispatcher.add_handler(result_chosen_handler)
 
     updater.start_polling()
     updater.idle()
