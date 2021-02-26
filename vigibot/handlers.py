@@ -111,13 +111,15 @@ def inlinequery(update, context):
             id=uuid4(), title="Answer", input_message_content=response
         ),
     ]
+
+    update.inline_query.answer(result)
     try:
         user = update.inline_query.from_user.username
-        save_question(query, 'Telegram', str(user), int(update.inline_query.id))
+        chosen_query = update.chosen_inline_result.query
+        save_question(chosen_query, 'Telegram', str(user), int(update.inline_query.id))
     except Exception as e:
         context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query: {e}",
                                  parse_mode=ParseMode.HTML)
-    update.inline_query.answer(result)
 
 
 def alerta(update, context):
