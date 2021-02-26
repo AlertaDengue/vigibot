@@ -122,7 +122,7 @@ def on_inline_result_chosen(update, context):
     query = result.query
     username = result.from_user.username
     try:
-        save_question(query, 'Telegram', username, int(result_id))
+        save_question(query, 'Telegram', username, int(update.update_id))
     except Exception as e:
         context.bot.send_message(chat_id=DEVELOPER_CHAT_ID, text=f"Problem saving inline query {query} from user {username}: {e}",
                                  parse_mode=ParseMode.HTML)
