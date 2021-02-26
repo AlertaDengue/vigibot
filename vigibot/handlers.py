@@ -109,7 +109,7 @@ def inlinequery(update, context):
     response = InputTextMessageContent(chatbot.get_response(query).text)
     result = [
         InlineQueryResultArticle(
-            id=uuid4(), title="Answer", input_message_content=response,
+            id=uuid4(), title="Resposta:", input_message_content=response,
             url='https://info.dengue.mat.br'
         ),
     ]
