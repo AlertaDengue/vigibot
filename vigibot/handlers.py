@@ -52,9 +52,10 @@ def error(update, context):
     tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
     tb_string = ''.join(tb_list)
     try:
+        upd = str(update) if update is None else json.dumps(update.to_dict(), indent=2, ensure_ascii=False)
         message = (
             f'An exception was raised while handling an update\n'
-            f'<pre>update = {html.escape(json.dumps(update.to_dict(), indent=2, ensure_ascii=False))}'
+            f'<pre>update = {html.escape(upd)}'
             '</pre>\n\n'
             f'<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n'
             f'<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n'
