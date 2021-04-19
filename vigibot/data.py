@@ -1,3 +1,4 @@
+import psycopg2
 from sqlalchemy import create_engine, text
 import pandas as pd
 import os
@@ -16,6 +17,14 @@ def get_engine():
     ))
     return db_engine
 
+def get_ppg2_connection():
+    conn = psycopg2.connect(
+        host=os.getenv('PSQL_HOST'),
+        database=os.getenv('PSQL_DB'),
+        user=os.getenv('PSQL_USER'),
+        password=os.getenv('PSQL_PASSWORD')
+    )
+    return conn
 
 
 def get_alerta_table(municipio=None, state=None, doenca='dengue'):
@@ -27,7 +36,8 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
     :param state: full name of state, with first letter capitalized: "Cear
     :return: Pandas dataframe
     """
-    db_engine = get_engine()
+    # db_engine = get_engine()
+    conn = get_ppg2_connection()
     estados = {'RJ': 'Rio de Janeiro',
                'ES': 'Espírito Santo', 'PR': 'Paraná', 'CE': 'Ceará'}
     if state in estados:
@@ -44,12 +54,12 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
             tabela,
             state)
 
-        df = pd.read_sql_query(sql, db_engine, index_col='id')
+        df = pd.read_sql_query(sql, conn, index_col='id')
     else:
         df = pd.read_sql_query(
             'select * from "Municipio"."{}" where municipio_geocodigo={} ORDER BY "data_iniSE" ASC;'.format(tabela,
                                                                                                             municipio),
-            db_engine, index_col='id')
+            conn, index_col='id')
     df.data_iniSE = pd.to_datetime(df.data_iniSE)
     df.set_index('data_iniSE', inplace=True)
 
@@ -62,11 +72,12 @@ def get_city_names(geocodigos):
     :param geocodigos: list of 7-digit geocodes.
     :return:
     """
-    db_engine = get_engine()
-    with db_engine.connect() as conexao:
-        res = conexao.execute(
+    # db_engine = get_engine()
+    conn = get_ppg2_connection()
+    with conn.cursor() as curs:
+        curs.execute(
             f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE geocodigo in {tuple(geocodigos)};')
-        res = res.fetchall()
+        res = curs.fetchall()
 
     return res
 
@@ -78,12 +89,12 @@ def get_alerta(geocodigo, doenca='dengue'):
         tabela = 'Historico_alerta_chik'
     elif doenca == 'zika':
         tabela = 'Historico_alerta_zika'
-    db_engine = get_engine()
-    with db_engine.connect() as conexao:
-        res = conexao.execute(
+    conn = get_ppg2_connection()
+    with conn.cursor() as curs:
+        curs.execute(
             f'select nivel, "SE", municipio_geocodigo from "Municipio"."{tabela}" WHERE municipio_geocodigo={geocodigo} ORDER BY "data_iniSE" DESC limit 1;'
         )
-        res = res.fetchone()
+        res = curs.fetchone()
 
     return res
 
@@ -98,17 +109,14 @@ def get_geocode(muname):
     # replace accents by '_' because Postgresql will accept any character for the position
     # muname = re.sub(r'[^\x00-\x7F]','_', muname)
     l = len(muname)
-    db_engine = get_engine()
-    with db_engine.connect() as conexao:
+    # db_engine = get_engine()
+    conn = get_ppg2_connection()
+    with conn.cursor() as curs:
         gc = []
         while not gc:
             muname = muname[:l]
-            res = conexao.execute(
-                text(
-                    'select geocodigo, nome from "Dengue_global"."Municipio" WHERE nome ilike :search'),
-                {"search": f"{muname}%"}
-            )
-            gc = res.fetchall()
+            curs.execute(f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE nome ilike \'{muname}\'')
+            gc = curs.fetchall()
             l -= 1
             if l < 3:
                 return gc

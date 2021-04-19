@@ -200,9 +200,9 @@ def check_user_exists(tid):
     # eng = get_engine(pool_size=1)
     # with eng.connect() as conexao:
     conexao = get_ppg2_connection()
-    cursor = conexao.cursor()
-    cursor.execute(f'select * from bot_users where telegram_uid={tid}')  # , {'tid': tid}))
-    res = cursor.fetchone()
+    with conexao.cursor() as cursor:
+        cursor.execute(f'select * from bot_users where telegram_uid={tid}')  # , {'tid': tid}))
+        res = cursor.fetchone()
     return (res is not None)
 
 
@@ -210,8 +210,8 @@ def add_user(user):
     # eng = get_engine(pool_size=1)
     # with eng.connect() as conexao:
     conexao = get_ppg2_connection()
-    cursor = conexao.cursor()
-    cursor.execute(
+    with conexao.cursor() as cursor:
+        cursor.execute(
         f'insert into bot_users(telegram_uid, first_name, last_name) values({user.id}, \'{user.first_name}\',\'{user.last_name}\');')
 
 
@@ -219,9 +219,9 @@ def add_location(user, location):
     # eng = get_engine(pool_size=1)
     # with eng.connect() as conexao:
     conexao = get_ppg2_connection()
-    cursor = conexao.cursor()
-    sql = f"update bot_users set latitude= {location.latitude}, longitude= {location.longitude} where telegram_uid= {user.id};"
-    cursor.execute(sql)
+    with conexao.cursor() as cursor:
+        sql = f"update bot_users set latitude= {location.latitude}, longitude= {location.longitude} where telegram_uid= {user.id};"
+        cursor.execute(sql)
 
 
 @lru_cache(maxsize=1000)
