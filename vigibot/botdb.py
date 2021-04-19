@@ -3,7 +3,7 @@ Access functions to the Vigibot database
 """
 import psycopg2
 import os
-from data import get_ppg2_connection
+from vigibot.data import get_ppg2_connection
 
 
 def save_question(pergunta, rede, userid, msgid):
