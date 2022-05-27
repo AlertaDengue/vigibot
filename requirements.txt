@@ -5,12 +5,12 @@ python-telegram-bot
 sqlalchemy
 python-dotenv
 pandas
-psycopg2
+psycopg2-binary
 tweepy
 instabot
 PyYAML
 spacy==2.3.1
-chatterbot
+chatterbot2
 tweepy
 uuid
 
