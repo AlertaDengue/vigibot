@@ -1,0 +1,6 @@
+ARG IMAGE_BUILD
+FROM ${IMAGE_BUILD}
+
+
+WORKDIR /usr/src/app
+CMD [ "python", "./twbot.py" ]

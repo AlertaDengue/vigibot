@@ -1,0 +1,56 @@
+FROM condaforge/mambaforge
+
+ARG HOST_UID
+ARG HOST_GID
+ARG SERVICES
+ENV ENV_NAME=chatterbot
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get -qq update --yes \
+  && apt-get -qq install --yes --no-install-recommends \
+  build-essential git make postgresql-client \
+  ca-certificates wget locales cron sudo \
+  && rm -rf /var/lib/apt/lists/*
+
+#Set locale
+RUN sed -i -e "s/# pt_BR.*/pt_BR.UTF-8 UTF-8/" /etc/locale.gen \
+  && dpkg-reconfigure --frontend=noninteractive locales \
+  && update-locale LANG=pt_BR.UTF-8
+
+# Create vigibot user
+RUN addgroup --gid ${HOST_GID} vigibot \
+  && useradd --uid ${HOST_UID} --gid ${HOST_GID} -ms /bin/bash vigibot \
+  && echo "vigibot ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/vigibot \
+  && chmod 0440 /etc/sudoers.d/vigibot \
+  && export ENV_NAME="$ENV_NAME" \
+  && mkdir -p /opt/conda /opt/services/logs /usr/src/app \
+  && chmod -R a+rwx /opt/conda /usr/src/app /tmp \
+  && chown vigibot:vigibot /opt/services/ /tmp \
+  && echo 'source /opt/conda/bin/activate "$ENV_NAME" && exec "$@"' > /activate.sh \
+  && chmod +x /activate.sh \
+  && echo 'source activate "$ENV_NAME"' >  /home/vigibot/.bashrc
+
+ENV PATH "$PATH:/home/vigibot/.local/bin"
+ENV PATH /opt/conda/envs/$ENV_NAME/bin:$PATH
+
+USER vigibot
+
+## Copy code to the container with permissions to user
+COPY --chown=vigibot:vigibot vigibot_app  /usr/src/app
+COPY --chown=vigibot:vigibot env.tpl /usr/src/app/ 
+COPY --chown=vigibot:vigibot conda/environment.yaml /tmp/environment.yaml
+
+RUN mamba env create -n $ENV_NAME \
+    --file /tmp/environment.yaml \
+  && python -m spacy download pt \
+  && python -m spacy download en \
+  && python -m spacy download en_core_web_sm \
+  && python -m spacy download pt_core_news_sm \
+  && conda clean --all \
+  && find /opt/conda/ -type f,l -name '*.a' -delete \
+  && find /opt/conda/ -type f,l -name '*.pyc' -delete \
+  && find /opt/conda/ -type f,l -name '*.js.map' -delete \
+  && rm -rf /opt/conda/pkgs
+
+WORKDIR /usr/src/app
+ENTRYPOINT ["bash", "/activate.sh"]
