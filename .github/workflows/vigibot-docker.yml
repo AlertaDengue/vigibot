@@ -2,6 +2,11 @@ name: vigibot-docker
 
 on: [push, pull_request]
 
+env:
+  HOST_UID: 1000
+  HOST_GID: 1000
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
