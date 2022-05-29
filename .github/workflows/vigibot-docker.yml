@@ -45,6 +45,7 @@ jobs:
       run: |
         make docker-start-ci
 
-    # - name: Linting
-    #   run: |
-    #     make lint
+    - name: Docker pytest
+      run: |
+        make docker-pytest SERVICES=bot
+        make docker-pytest SERVICES=twitterchat

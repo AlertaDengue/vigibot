@@ -31,3 +31,6 @@ docker-stop:
 docker-start-ci:
 	$(DOCKER) up -d --scale base=0
 	
+.PHONY:docker-pytest
+docker-pytest:
+	$(DOCKER) run --rm ${SERVICES} pytest ./tests/ -vv -s
