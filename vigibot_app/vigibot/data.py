@@ -107,7 +107,7 @@ def get_geocode(muname):
     :return: geocode (str)
     """
     # replace accents by '_' because Postgresql will accept any character for the position
-    # muname = re.sub(r'[^\x00-\x7F]','_', muname)
+    muname = re.sub(r'[^\x00-\x7F]','_', muname)
     l = len(muname)
     # db_engine = get_engine()
     conn = get_ppg2_connection()
