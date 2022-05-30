@@ -1,0 +1,51 @@
+name: vigibot-docker
+
+on: [push, pull_request]
+
+env:
+  HOST_UID: 1000
+  HOST_GID: 1000
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7"]
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: true
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        mamba-version: "*"
+        environment-file: conda/environment.yaml
+        channels: conda-forge,nodefaults
+        activate-environment: chatterbot
+        use-mamba: true
+        miniforge-variant: Mambaforge
+
+    - name: Create env file
+      run: envsubst < env.tpl > .env
+
+    - name: Docker build all images
+      run: |
+        make docker-build
+
+    - name: Docker start-all
+      run: |
+        make docker-start-ci
+
+    - name: Docker pytest
+      run: |
+        make docker-pytest SERVICES=bot
+        make docker-pytest SERVICES=twitterchat

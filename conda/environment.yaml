@@ -1,0 +1,34 @@
+name: chatterbot
+channels:
+  - conda-forge
+dependencies:
+  ## python core
+  - pip
+  - python=3.7
+
+  ## dependencies
+  - docker-compose
+  - emoji
+  - geopy 
+  - pandas
+  - psycopg2-binary
+  - python-dateutil=2.8
+  - python-dotenv 
+  - python-telegram-bot
+  - pytz
+  - pyyaml >=3.12,<4.0
+  - six >=1.5
+  - spacy=2.3.1
+  - SQLAlchemy
+  - tweepy
+
+  ## development
+  - pytest
+
+  ## pip installs
+  - pip:
+    - chatterbot
+    - chatterbot-corpus
+    - instabot
+    - uuid
+
