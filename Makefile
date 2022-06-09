@@ -15,10 +15,6 @@ DOCKER=docker-compose \
 docker-build:
 	$(DOCKER) build ${SERVICES}
 
-.PHONY:docker-start-ci
-docker-start-ci:
-	$(DOCKER) up -d --scale base=0
-
 .PHONY:docker-start
 docker-start:
 	$(DOCKER) up -d ${SERVICES}
@@ -26,6 +22,10 @@ docker-start:
 .PHONY:docker-stop
 docker-stop:
 	$(DOCKER) stop ${SERVICES}
+
+.PHONY:docker-logs
+docker-logs:
+	$(DOCKER) logs --follow --tail 100 ${SERVICES}	
 
 .PHONY:docker-start-ci
 docker-start-ci:

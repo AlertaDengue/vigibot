@@ -9,6 +9,14 @@ env:
   TWITTER_API_SECRET_KEY: ${{ secrets.TWITTER_API_SECRET_KEY }}
   TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
   TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+  PSQL_USER: ${{ secrets.PSQL_USER }}
+  PSQL_PASSWORD: ${{ secrets.PSQL_PASSWORD }}
+  PSQL_HOST: ${{ secrets.PSQL_HOST }}
+  PSQL_PORT: ${{ secrets.PSQL_PORT }}
+  PSQL_DB: ${{ secrets.PSQL_DB }}
+  PSQL_BOTDB: ${{ secrets.PSQL_BOTDB }}
+  VIGIBOT_PG_DATA: ${{ secrets.VIGIBOT_PG_DATA }}
 
 jobs:
   build:
@@ -40,15 +48,15 @@ jobs:
     - name: Create env file
       run: envsubst < env.tpl > .env
 
+    - name: Build and deploy vigibot database
+      id: db_demo
+      run: |
+         make docker-start SERVICES=db
+
     - name: Docker build all images
       run: |
         make docker-build
 
-    - name: Docker start-all
-      run: |
-        make docker-start-ci
-
     - name: Docker pytest
       run: |
-        make docker-pytest SERVICES=bot
         make docker-pytest SERVICES=twitterchat

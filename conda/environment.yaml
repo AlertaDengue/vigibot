@@ -24,6 +24,7 @@ dependencies:
 
   ## development
   - pytest
+  - jupyterlab
 
   ## pip installs
   - pip:

@@ -102,6 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.pre-commit*
 
-# Pycharm
+
+# IDE
 .idea
+.vscode
