@@ -27,10 +27,10 @@ docker-stop:
 docker-logs:
 	$(DOCKER) logs --follow --tail 100 ${SERVICES}	
 
-.PHONY:docker-start-ci
-docker-start-ci:
-	$(DOCKER) up -d --scale base=0
-	
 .PHONY:docker-pytest
 docker-pytest:
 	$(DOCKER) run --rm ${SERVICES} pytest ./tests/ -vv -s
+
+.PHONY:docker-pytest-ci
+docker-pytest-ci:
+	$(DOCKER) run --rm ${SERVICES} pytest --ignore-glob='*test_twitter*'

@@ -16,7 +16,7 @@ services:
       - POSTGRES_PASSWORD=${PSQL_PASSWORD}
     volumes:
       - ../docker/postgres_setup/:/docker-entrypoint-initdb.d/
-      - ${VIGIBOT_PG_DATA}:/var/lib/postgresql/data
+      - ../../pg_vigibot_data:/var/lib/postgresql/data
     restart: always
     command: -p ${PSQL_PORT}
 
@@ -42,8 +42,6 @@ services:
     environment:
       - PSQL_HOST=${PSQL_HOST}
       - PSQL_PORT=${PSQL_PORT}
-    depends_on:
-      - db
     restart: always
 
   twitterchat:
@@ -60,6 +58,5 @@ services:
       - PSQL_HOST=${PSQL_HOST}
       - PSQL_PORT=${PSQL_PORT}
     depends_on:
-      - db
       - bot
     restart: always
