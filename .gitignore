@@ -102,8 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.pre-commit*
-
 
 # IDE
 .idea

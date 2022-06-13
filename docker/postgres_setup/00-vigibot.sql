@@ -280,4 +280,3 @@ CREATE INDEX pergunta_network_idx ON public.pergunta USING btree (network);
 --
 -- PostgreSQL database dump complete
 --
-

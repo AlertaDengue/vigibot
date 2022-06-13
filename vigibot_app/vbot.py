@@ -1,16 +1,31 @@
 #!/usr/bin/env python3
-from telegram.ext import Updater, Filters
-from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, InlineQueryHandler, ChosenInlineResultHandler
-from vigibot import logformatter, loghandler
 import logging
 import os
 
-from vigibot.handlers import bom_dia, error, alerta, unknown, location, inlinequery, on_inline_result_chosen
 from dotenv import load_dotenv
+from telegram.ext import (
+    ChosenInlineResultHandler,
+    CommandHandler,
+    Filters,
+    InlineQueryHandler,
+    MessageHandler,
+    Updater,
+)
+
+from vigibot import loghandler
+from vigibot.handlers import (
+    alerta,
+    bom_dia,
+    error,
+    inlinequery,
+    location,
+    on_inline_result_chosen,
+    unknown,
+)
 
 load_dotenv()
 # Load environment variables from .env
-BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Setup logging
 module_logger = logging.getLogger(__name__)
@@ -30,18 +45,22 @@ def main():
     dispatcher.add_error_handler(error)
 
     # bot's command handlers
-    ola_handler = CommandHandler('ola', bom_dia, run_async=True)
+    ola_handler = CommandHandler("ola", bom_dia, run_async=True)
     dispatcher.add_handler(ola_handler)
     # ola_handler2 = CommandHandler('olá', bom_dia)
     # dispatcher.add_handler(ola_handler2)
 
-    alerta_handler = CommandHandler('alerta', alerta, pass_args=True, pass_user_data=True, run_async=True)
+    alerta_handler = CommandHandler(
+        "alerta", alerta, pass_args=True, pass_user_data=True, run_async=True
+    )
     dispatcher.add_handler(alerta_handler)
 
     unknown_handler = MessageHandler(Filters.command, unknown, run_async=True)
     dispatcher.add_handler(unknown_handler)
 
-    location_handler = MessageHandler(Filters.location, location, pass_user_data=True, run_async=True)
+    location_handler = MessageHandler(
+        Filters.location, location, pass_user_data=True, run_async=True
+    )
     dispatcher.add_handler(location_handler)
 
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
@@ -53,5 +72,5 @@ def main():
     updater.idle()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

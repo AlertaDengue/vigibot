@@ -37,7 +37,7 @@ USER vigibot
 
 ## Copy code to the container with permissions to user
 COPY --chown=vigibot:vigibot vigibot_app  /usr/src/app
-COPY --chown=vigibot:vigibot env.tpl /usr/src/app/ 
+COPY --chown=vigibot:vigibot env.tpl /usr/src/app/
 COPY --chown=vigibot:vigibot conda/environment.yaml /tmp/environment.yaml
 
 RUN mamba env create -n $ENV_NAME \

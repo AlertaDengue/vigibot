@@ -1,14 +1,16 @@
-__author__ = 'fccoelho'
+__author__ = "fccoelho"
 
 import unittest
-from telegram import Update, User, Bot, InlineQuery, Location
-from vigibot.handlers import check_user_exists, add_user, add_location, inlinequery
+
+from vigibot.handlers import add_location, add_user, check_user_exists
+
+# from telegram import Bot, InlineQuery, Location, Update, User
 
 
 class U:
     id = 1
-    first_name = 'ze'
-    last_name = 'teste'
+    first_name = "ze"
+    last_name = "teste"
 
 
 class L:
@@ -48,5 +50,5 @@ class HandlersTestCase(unittest.TestCase):
     #     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
