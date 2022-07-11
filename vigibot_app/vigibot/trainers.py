@@ -1,10 +1,11 @@
-from chatterbot.trainers import Trainer
-from chatterbot import languages
-from chatterbot.conversation import Statement
-from chatterbot import utils
-import spacy
-import string
 import os
+import string
+
+# import spacy
+from chatterbot import utils  # languages
+from chatterbot.conversation import Statement
+from chatterbot.trainers import Trainer
+
 
 class InfodengueCorpusTrainer(Trainer):
     """
@@ -13,9 +14,9 @@ class InfodengueCorpusTrainer(Trainer):
     """
 
     def train(self, *corpus_paths):
-        from chatterbot.corpus import load_corpus, list_corpus_files
+        from chatterbot.corpus import list_corpus_files, load_corpus
 
-        tagger = PosLemmaTagger(language='pt_core_news_sm')
+        tagger = PosLemmaTagger(language="pt_core_news_sm")
 
         data_file_paths = []
 
@@ -32,13 +33,13 @@ class InfodengueCorpusTrainer(Trainer):
 
                 if self.show_training_progress:
                     utils.print_progress_bar(
-                        'Training ' + str(os.path.basename(file_path)),
+                        "Training " + str(os.path.basename(file_path)),
                         conversation_count + 1,
-                        len(corpus)
+                        len(corpus),
                     )
 
                 previous_statement_text = None
-                previous_statement_search_text = ''
+                previous_statement_search_text = ""
 
                 for text in conversation:
 
@@ -49,7 +50,7 @@ class InfodengueCorpusTrainer(Trainer):
                         search_text=statement_search_text,
                         in_response_to=previous_statement_text,
                         search_in_response_to=previous_statement_search_text,
-                        conversation='training'
+                        conversation="training",
                     )
 
                     statement.add_tags(*categories)
@@ -64,14 +65,16 @@ class InfodengueCorpusTrainer(Trainer):
             if statements_to_create:
                 self.chatbot.storage.create_many(statements_to_create)
 
-class PosLemmaTagger(object):
 
+class PosLemmaTagger(object):
     def __init__(self, language=None):
         import spacy
 
-        self.language = language or 'en_core_web_sm'
+        self.language = language or "en_core_web_sm"
 
-        self.punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
+        self.punctuation_table = str.maketrans(
+            dict.fromkeys(string.punctuation)
+        )
 
         self.nlp = spacy.load(language)
 
@@ -89,28 +92,25 @@ class PosLemmaTagger(object):
         document = self.nlp(text)
 
         if len(text) <= 2:
-            bigram_pairs = [
-                token.lemma_.lower() for token in document
-            ]
+            bigram_pairs = [token.lemma_.lower() for token in document]
         else:
             tokens = [
-                token for token in document if token.is_alpha and not token.is_stop
+                token
+                for token in document
+                if token.is_alpha and not token.is_stop
             ]
 
             if len(tokens) < 2:
-                tokens = [
-                    token for token in document if token.is_alpha
-                ]
+                tokens = [token for token in document if token.is_alpha]
 
             for index in range(1, len(tokens)):
-                bigram_pairs.append('{}:{}'.format(
-                    tokens[index - 1].pos_,
-                    tokens[index].lemma_.lower()
-                ))
+                bigram_pairs.append(
+                    "{}:{}".format(
+                        tokens[index - 1].pos_, tokens[index].lemma_.lower()
+                    )
+                )
 
         if not bigram_pairs:
-            bigram_pairs = [
-                token.lemma_.lower() for token in document
-            ]
+            bigram_pairs = [token.lemma_.lower() for token in document]
 
-        return ' '.join(bigram_pairs)
+        return " ".join(bigram_pairs)
