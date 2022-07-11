@@ -1,0 +1,11 @@
+# This is a template for the .env file which needs to exist for the bot to run
+# edit this and save it as .env at the same directory as vbot.py
+
+BOT_TOKEN=""
+# Database
+PSQL_USER=''
+PSQL_PASSWORD=''
+PSQL_HOST='localhost'
+PSQL_DB='dengue'
+
+PSQL_BOTDB='vigibot'

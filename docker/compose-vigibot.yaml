@@ -1,0 +1,62 @@
+version: '3'
+services:
+
+  db:
+    image: postgres
+    hostname: db
+    container_name: db
+    ports:
+      - ${PSQL_PORT}:${PSQL_PORT}
+    env_file:
+      - ../.env
+    environment:
+      - PSQL_HOST=${PSQL_HOST}
+      - PSQL_PORT=${PSQL_PORT}
+      - POSTGRES_USER=${PSQL_USER}
+      - POSTGRES_PASSWORD=${PSQL_PASSWORD}
+    volumes:
+      - ../docker/postgres_setup/:/docker-entrypoint-initdb.d/
+      - ../../pg_vigibot_data:/var/lib/postgresql/data
+    restart: always
+    command: -p ${PSQL_PORT}
+
+  base:
+    build:
+      context: ".."
+      dockerfile: "docker/Dockerfile-base"
+      args:
+        HOST_UID: ${HOST_UID}
+        HOST_GID: ${HOST_GID}
+    restart: always
+
+  bot:
+    build:
+      context: ".."
+      dockerfile: "docker/Dockerfile-bot"
+      args:
+        IMAGE_BUILD: vigibot_base:latest
+    env_file:
+      - ../.env
+    hostname: bot
+    container_name: bot
+    environment:
+      - PSQL_HOST=${PSQL_HOST}
+      - PSQL_PORT=${PSQL_PORT}
+    restart: always
+
+  twitterchat:
+    build:
+      context: ".."
+      dockerfile: "docker/Dockerfile-tw"
+      args:
+        IMAGE_BUILD: vigibot_base:latest
+    env_file:
+      - ../.env
+    hostname: twitterchat
+    container_name: twitterchat
+    environment:
+      - PSQL_HOST=${PSQL_HOST}
+      - PSQL_PORT=${PSQL_PORT}
+    depends_on:
+      - bot
+    restart: always
