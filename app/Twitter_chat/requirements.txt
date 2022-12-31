@@ -1,0 +1,4 @@
+chatterbot
+tweepy
+PyYAML
+python-dotenv

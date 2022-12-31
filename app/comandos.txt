@@ -1,0 +1,2 @@
+ola - Cumprimente o Robo.
+alerta - alerta <dengue|zika|chik> <sua cidade>
