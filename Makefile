@@ -6,7 +6,7 @@ SERVICES:=
 ENV:=vigibot
 
 # DOCKER
-DOCKER=compose \
+DOCKER=docker-compose \
 	--env-file .env \
 	--project-name $(ENV) \
 	--file containers/compose.yaml
@@ -40,12 +40,10 @@ container-pytest:
 container-pytest-ci:
 	$(DOCKER) run --rm ${SERVICES} pytest --ignore-glob='*test_twitter*'
 
-
 .PHONY: lint
 lint: ## formatting linter
 	pre-commit install
 	pre-commit run --all-files
-
 
 # Python
 .PHONY: clean

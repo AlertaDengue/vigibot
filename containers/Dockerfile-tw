@@ -42,8 +42,6 @@ RUN addgroup --gid ${GID} vigibot \
 USER vigibot
 
 COPY --chown=vigibot:vigibot ./conda/ /tmp/conda
-COPY --chown=vigibot:vigibot app /opt/services/app/
-COPY --chown=vigibot:vigibot poetry.lock pyproject.toml README.md LICENSE /opt/
 
 ENV PATH /opt/conda/envs/$ENV_NAME/bin:$PATH
 ENV PYTHONPATH='/opt/services/app'
@@ -55,7 +53,10 @@ RUN mamba env create -n $ENV_NAME --file /tmp/conda/containers.yaml \
   && find /opt/conda/ -type f,l -name '*.js.map' -delete \
   && rm -rf /opt/conda/pkgs /tmp/*
 
-WORKDIR /opt/
+COPY --chown=vigibot:vigibot app /opt/services/app/
+COPY --chown=vigibot:vigibot poetry.lock pyproject.toml README.md LICENSE /opt/services/
+
+WORKDIR /opt/services/
 
 RUN poetry config virtualenvs.create false \
   && poetry install
