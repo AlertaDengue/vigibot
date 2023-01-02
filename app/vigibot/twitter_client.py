@@ -1,5 +1,5 @@
 import tweepy
-from tweepy.error import TweepError
+from tweepy.errors import TwitterServerError
 from dotenv import load_dotenv
 import os
 
@@ -17,5 +17,5 @@ def follow_all():
     for follower in tweepy.Cursor(api.followers).items():
         try:
             follower.follow()
-        except TweepError:
+        except TwitterServerError:
             pass

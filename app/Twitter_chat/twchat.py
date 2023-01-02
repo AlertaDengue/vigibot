@@ -8,7 +8,7 @@ from chatterbot import ChatBot
 from vigibot.trainers import InfodengueCorpusTrainer
 from vigibot.botdb import save_question, is_new_id
 from dotenv import load_dotenv
-from tweepy.error import TweepError
+from tweepy.errors import HTTPException
 import random
 
 load_dotenv()
@@ -106,7 +106,7 @@ def reply_mentions(api, keywords, since_id, Cbot):
                 status=ans,
                 in_reply_to_status_id=tweet.id,
             )
-        except TweepError as e:
+        except HTTPException as e:
             logger.error(f'Could not reply: {e}')
 
     return new_since_id
