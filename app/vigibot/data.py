@@ -1,30 +1,39 @@
-import psycopg2
-from sqlalchemy import create_engine, text
-import pandas as pd
 import os
-import re
 from functools import lru_cache
-from dotenv import load_dotenv
+from os.path import dirname, join
 
-load_dotenv()
+import pandas as pd
+import psycopg2
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+
+env_file = os.environ.get("ENV_FILE", ".env")
+dotenv_path = join(dirname(dirname(dirname(__file__))), env_file)
+load_dotenv(dotenv_path)
+
 
 def get_engine():
-    db_engine = create_engine("postgresql://{}:{}@{}/{}".format(
-        os.getenv('PSQL_USER'),
-        os.getenv('PSQL_PASSWORD'),
-        os.getenv('PSQL_HOST'),
-        os.getenv('PSQL_DB')
-    ))
+    db_engine = create_engine(
+        "postgresql://{}:{}@{}/{}".format(
+            os.getenv('PSQL_USER'),
+            os.getenv('PSQL_PASSWORD'),
+            os.getenv('PSQL_HOST'),
+            os.getenv('PSQL_DB'),
+        )
+    )
     return db_engine
 
+
 def get_ppg2_connection():
-    conn = psycopg2.connect(
-        host=os.getenv('PSQL_HOST'),
-        database=os.getenv('PSQL_DB'),
-        user=os.getenv('PSQL_USER'),
-        password=os.getenv('PSQL_PASSWORD')
-    )
-    return conn
+    db_config = {
+        "database": os.getenv('PSQL_BOTDB'),
+        "user": os.getenv('PSQL_USER'),
+        "password": os.getenv('PSQL_PASSWORD'),
+        "host": os.getenv('PSQL_HOST'),
+        "port": os.getenv('PSQL_PORT'),
+    }
+
+    return psycopg2.connect(**db_config)
 
 
 def get_alerta_table(municipio=None, state=None, doenca='dengue'):
@@ -38,8 +47,12 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
     """
     # db_engine = get_engine()
     conn = get_ppg2_connection()
-    estados = {'RJ': 'Rio de Janeiro',
-               'ES': 'Espírito Santo', 'PR': 'Paraná', 'CE': 'Ceará'}
+    estados = {
+        'RJ': 'Rio de Janeiro',
+        'ES': 'Espírito Santo',
+        'PR': 'Paraná',
+        'CE': 'Ceará',
+    }
     if state in estados:
         state = estados[state]
 
@@ -51,15 +64,18 @@ def get_alerta_table(municipio=None, state=None, doenca='dengue'):
         tabela = 'Historico_alerta_zika'
     if municipio is None:
         sql = 'select h.* from "Municipio"."{}" h JOIN "Dengue_global"."Municipio" m ON h.municipio_geocodigo=m.geocodigo where m.uf=\'{}\';'.format(
-            tabela,
-            state)
+            tabela, state
+        )
 
         df = pd.read_sql_query(sql, conn, index_col='id')
     else:
         df = pd.read_sql_query(
-            'select * from "Municipio"."{}" where municipio_geocodigo={} ORDER BY "data_iniSE" ASC;'.format(tabela,
-                                                                                                            municipio),
-            conn, index_col='id')
+            'select * from "Municipio"."{}" where municipio_geocodigo={} ORDER BY "data_iniSE" ASC;'.format(
+                tabela, municipio
+            ),
+            conn,
+            index_col='id',
+        )
     df.data_iniSE = pd.to_datetime(df.data_iniSE)
     df.set_index('data_iniSE', inplace=True)
 
@@ -76,7 +92,8 @@ def get_city_names(geocodigos):
     conn = get_ppg2_connection()
     with conn.cursor() as curs:
         curs.execute(
-            f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE geocodigo in {tuple(geocodigos)};')
+            f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE geocodigo in {tuple(geocodigos)};'
+        )
         res = curs.fetchall()
 
     return res
@@ -115,7 +132,9 @@ def get_geocode(muname):
         gc = []
         while not gc:
             muname = muname[:l]
-            curs.execute(f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE nome ilike \'{muname}\'')
+            curs.execute(
+                f'select geocodigo, nome from "Dengue_global"."Municipio" WHERE nome ilike \'{muname}\''
+            )
             gc = curs.fetchall()
             l -= 1
             if l < 3:

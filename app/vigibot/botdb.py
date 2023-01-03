@@ -1,27 +1,39 @@
 """
 Access functions to the Vigibot database
 """
-import psycopg2
 import os
+from os.path import dirname, join
+
+import psycopg2
+from dotenv import load_dotenv
+
+env_file = os.environ.get("ENV_FILE", ".env")
+dotenv_path = join(dirname(dirname(dirname(__file__))), env_file)
+load_dotenv(dotenv_path)
 
 
 def get_ppg2_connection():
-    conn = psycopg2.connect(
-        host=os.getenv('PSQL_HOST'),
-        database=os.getenv('PSQL_BOTDB'),
-        user=os.getenv('PSQL_USER'),
-        password=os.getenv('PSQL_PASSWORD')
-    )
-    return conn
+    db_config = {
+        "database": os.getenv('PSQL_BOTDB'),
+        "user": os.getenv('PSQL_USER'),
+        "password": os.getenv('PSQL_PASSWORD'),
+        "host": os.getenv('PSQL_HOST'),
+        "port": os.getenv('PSQL_PORT'),
+    }
+
+    return psycopg2.connect(**db_config)
 
 
 def create_pergunta_table():
     conn = get_ppg2_connection()
     with conn.cursor() as cur:
-        cur.execute("select * from information_schema.tables where table_name='pergunta' limit 5;")
+        cur.execute(
+            "select * from information_schema.tables where table_name='pergunta' limit 5;"
+        )
         if not cur.rowcount:
             cur.execute(
-                'create table pergunta(id bigserial, username varchar(32), network varchar(16), pergunta text, datetime timestamp, msgid bigint;')
+                'create table pergunta(id bigserial, username varchar(32), network varchar(16), pergunta text, datetime timestamp, msgid bigint;'
+            )
 
 
 def save_question(pergunta, rede, userid, msgid):
